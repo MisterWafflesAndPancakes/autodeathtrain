@@ -29,9 +29,9 @@ local trainingAreas = {
 }
 table.sort(trainingAreas, function(a, b) return a.threshold < b.threshold end)
 
--- Utility: get center CFrame of a part
+-- Utility: get true 3D centre CFrame of a part
 local function getCenter(part)
-    return part.CFrame + Vector3.new(0, part.Size.Y/2, 0)
+    return CFrame.new(part.Position)
 end
 
 -- Utility: parse StatLabel text into an atomic number (robust)
