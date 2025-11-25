@@ -27,6 +27,7 @@ local trainingAreas = {
     {threshold = 1e21, part = workspace.Main.TrainingAreasHitBoxes.BT["1Sx"]},
     {threshold = 1e24, part = workspace.Main.TrainingAreasHitBoxes.BT["1Sp"]},
     {threshold = 1e27, part = workspace.Main.TrainingAreasHitBoxes.BT["1Oc"]},
+    --{threshold = 1e30, part = workspace.Main.TrainingAreasHitBoxes.BT["1No"]},
 }
 table.sort(trainingAreas, function(a, b) return a.threshold < b.threshold end)
 
@@ -40,9 +41,9 @@ local function parseStatText(text)
     if not text or typeof(text) ~= "string" then return 0 end
     text = text:gsub(",", ""):gsub("%s+", " "):lower()
 
+    -- Corrected "qa" suffix + futureproofing
     local suffixes = {
-        k=1e3, m=1e6, b=1e9, t=1e12,
-        qa=1e15, qi=1e18, sx=1e21, sp=1e24, oc=1e27
+        k=1e3, m=1e6, b=1e9, t=1e12, qa=1e15, qi=1e18, sx=1e21, sp=1e24, oc=1e27, no=1e30, dc=1e33, ud=1e36, dd=1e39, td=1e42
     }
 
     local numStr, suf = text:match("([%d%.]+)%s*([a-z]+)")
@@ -101,7 +102,7 @@ local function attachTeleportLoop(char)
                     hrp.CFrame = getCenter(area)
                 end)
             end
-            task.wait(0.13) -- adjust delay (seconds) between teleports
+            task.wait(0.08) -- adjust delay (seconds) between teleports
         end
     end)
 end
