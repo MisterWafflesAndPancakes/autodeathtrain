@@ -91,7 +91,7 @@ local function getBestArea()
     return best
 end
 
-- Teleport loop
+-- Teleport loop
 local function attachTeleportLoop(char)
     local hrp = char:WaitForChild("HumanoidRootPart")
     local accumulator = 0
