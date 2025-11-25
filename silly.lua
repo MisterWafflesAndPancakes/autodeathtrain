@@ -91,18 +91,34 @@ local function getBestArea()
     return best
 end
 
--- Attach teleport loop to a character (changed to task.wait() due to lag)
+- Teleport loop
 local function attachTeleportLoop(char)
     local hrp = char:WaitForChild("HumanoidRootPart")
-    task.spawn(function()
-        while autofarmEnabled do
+    local accumulator = 0
+    local connection
+
+    connection = RunService.Heartbeat:Connect(function(dt)
+        if not autofarmEnabled or not char.Parent then
+            -- Cleanup when autofarm ends
+            if connection then connection:Disconnect() end
+            if hrp then hrp.Anchored = false end
+            return
+        end
+
+        -- interval depends on slider value
+        local interval = 1 / updatesPerSecond
+        accumulator += dt
+
+        while accumulator >= interval do
+            accumulator -= interval
+
             local area = getBestArea()
             if area then
                 pcall(function()
+                    hrp.Anchored = true
                     hrp.CFrame = getCenter(area)
                 end)
             end
-            task.wait(0.08) -- adjust delay (seconds) between teleports
         end
     end)
 end
@@ -116,6 +132,7 @@ end)
 if player.Character then
     attachTeleportLoop(player.Character)
 end
+
 
 -- Preserved getconnections loop, gated by toggle
 task.spawn(function()
@@ -166,7 +183,7 @@ local Toggle = Tab:CreateToggle({
 -- Slider wired to backend setter (clamped)
 local Slider = Tab:CreateSlider({
     Name = "Lesser Factor",
-    Range = {1, 20},
+    Range = {1, 30},
     Increment = 1,
     Suffix = "x",
     CurrentValue = 20,
@@ -186,5 +203,18 @@ local IntervalSlider = Tab:CreateSlider({
     Flag = "ConnectionIntervalSlider",
     Callback = function(Value)
         setConnectionInterval(Value)
+    end,
+})
+
+local RateSlider = Tab:CreateSlider({
+    Name = "Autofarm Update Rate",
+    Range = {30, 120},
+    Increment = 5,
+    Suffix = "Hz",
+    CurrentValue = 60,
+    Flag = "AutofarmRateSlider",
+    Callback = function(Value)
+        -- Update the target rate dynamically
+        updatesPerSecond = Value
     end,
 })
