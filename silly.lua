@@ -7,10 +7,11 @@ local player = Players.LocalPlayer
 local autofarmEnabled = false
 local lesserFactor = 20
 local connectionInterval = 7
+local updatesPerSecond = 60
 
 -- Reference PlayButton safely
 local playButton = player:WaitForChild("PlayerGui"):WaitForChild("IntroGui"):WaitForChild("PlayButton")
-local connections = getconnections(playButton.MouseButton1Click)
+local connections = getconnections(playButton.MouseButton1Click) -- ENSURE YOUR EXECUTOR SUPPORTS THIS IDIOT!!!
 
 -- Training areas mapped to correct thresholds (unique, ascending after sort)
 local trainingAreas = {
@@ -150,12 +151,24 @@ task.spawn(function()
 end)
 
 -- Backend controls
-local function enableAutofarm()  autofarmEnabled = true  end
-local function disableAutofarm()  autofarmEnabled = false end
-local function setLesserFactor(value) lesserFactor = math.max(1, value) end
+local function enableAutofarm()  
+    autofarmEnabled = true
+end
+
+local function disableAutofarm()
+    autofarmEnabled = false 
+end
+
+local function setLesserFactor(value) 
+    lesserFactor = math.max(1, value) 
+end
 
 local function setConnectionInterval(value)
     connectionInterval = math.max(1, value) -- clamp to at least 1 second
+end
+
+local function setUpdateRate(value)
+    updatesPerSecond = math.clamp(value, 1, 120) -- Clamp to atleast 1 heartbeat
 end
 
 
@@ -206,15 +219,15 @@ local IntervalSlider = Tab:CreateSlider({
     end,
 })
 
+-- Slider for HZ
 local RateSlider = Tab:CreateSlider({
-    Name = "Autofarm Update Rate",
-    Range = {30, 120},
+    Name = "Heartbeats/s",
+    Range = {30, 120}, -- min and max Hz values
     Increment = 5,
     Suffix = "Hz",
-    CurrentValue = 60,
+    CurrentValue = updatesPerSecond,
     Flag = "AutofarmRateSlider",
     Callback = function(Value)
-        -- Update the target rate dynamically
-        updatesPerSecond = Value
+        setUpdateRate(Value) -- Call helper
     end,
 })
