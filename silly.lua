@@ -186,3 +186,17 @@ local IntervalSlider = Tab:CreateSlider({
         setConnectionInterval(Value)
     end,
 })
+
+-- Anti-AFK Button in Rayfield
+MainTab:CreateButton({
+    Name = "Enable Anti-AFK",
+    Callback = function()
+        local VirtualUser = game:GetService("VirtualUser")
+        local player = game:GetService("Players").LocalPlayer
+
+        player.Idled:Connect(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+    end,
+})
