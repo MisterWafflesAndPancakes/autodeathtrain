@@ -90,17 +90,18 @@ local function getBestArea()
     return best
 end
 
--- Attach teleport loop to a character
+-- Attach teleport loop to a character (changed to task.wait() due to lag)
 local function attachTeleportLoop(char)
     local hrp = char:WaitForChild("HumanoidRootPart")
-    RunService.Heartbeat:Connect(function()
-        if autofarmEnabled then
+    task.spawn(function()
+        while autofarmEnabled do
             local area = getBestArea()
             if area then
                 pcall(function()
                     hrp.CFrame = getCenter(area)
                 end)
             end
+            task.wait(0.13) -- adjust delay (seconds) between teleports
         end
     end)
 end
