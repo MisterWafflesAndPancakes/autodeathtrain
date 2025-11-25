@@ -164,7 +164,7 @@ local Toggle = Tab:CreateToggle({
 -- Slider wired to backend setter (clamped)
 local Slider = Tab:CreateSlider({
     Name = "Lesser Factor",
-    Range = {1, 20},
+    Range = {1, 36},
     Increment = 1,
     Suffix = "x",
     CurrentValue = 20,
