@@ -7,11 +7,10 @@ local player = Players.LocalPlayer
 local autofarmEnabled = false
 local lesserFactor = 20
 local connectionInterval = 7
-local updatesPerSecond = 60
 
 -- Reference PlayButton safely
 local playButton = player:WaitForChild("PlayerGui"):WaitForChild("IntroGui"):WaitForChild("PlayButton")
-local connections = getconnections(playButton.MouseButton1Click) -- ENSURE YOUR EXECUTOR SUPPORTS THIS IDIOT!!!
+local connections = getconnections(playButton.MouseButton1Click)
 
 -- Training areas mapped to correct thresholds (unique, ascending after sort)
 local trainingAreas = {
@@ -42,7 +41,6 @@ local function parseStatText(text)
     if not text or typeof(text) ~= "string" then return 0 end
     text = text:gsub(",", ""):gsub("%s+", " "):lower()
 
-    -- Corrected "qa" suffix + futureproofing
     local suffixes = {
         k=1e3, m=1e6, b=1e9, t=1e12, qa=1e15, qi=1e18, sx=1e21, sp=1e24, oc=1e27, no=1e30, dc=1e33, ud=1e36, dd=1e39, td=1e42
     }
@@ -92,31 +90,14 @@ local function getBestArea()
     return best
 end
 
--- Teleport loop
+-- Attach teleport loop to a character
 local function attachTeleportLoop(char)
     local hrp = char:WaitForChild("HumanoidRootPart")
-    local accumulator = 0
-    local connection
-
-    connection = RunService.Heartbeat:Connect(function(dt)
-        if not autofarmEnabled or not char.Parent then
-            -- Cleanup when autofarm ends
-            if connection then connection:Disconnect() end
-            if hrp then hrp.Anchored = false end
-            return
-        end
-
-        -- interval depends on slider value
-        local interval = 1 / updatesPerSecond
-        accumulator += dt
-
-        while accumulator >= interval do
-            accumulator -= interval
-
+    RunService.Heartbeat:Connect(function()
+        if autofarmEnabled then
             local area = getBestArea()
             if area then
                 pcall(function()
-                    hrp.Anchored = true
                     hrp.CFrame = getCenter(area)
                 end)
             end
@@ -134,7 +115,6 @@ if player.Character then
     attachTeleportLoop(player.Character)
 end
 
-
 -- Preserved getconnections loop, gated by toggle
 task.spawn(function()
     while true do
@@ -151,24 +131,12 @@ task.spawn(function()
 end)
 
 -- Backend controls
-local function enableAutofarm()  
-    autofarmEnabled = true
-end
-
-local function disableAutofarm()
-    autofarmEnabled = false 
-end
-
-local function setLesserFactor(value) 
-    lesserFactor = math.max(1, value) 
-end
+local function enableAutofarm()  autofarmEnabled = true  end
+local function disableAutofarm()  autofarmEnabled = false end
+local function setLesserFactor(value) lesserFactor = math.max(1, value) end
 
 local function setConnectionInterval(value)
     connectionInterval = math.max(1, value) -- clamp to at least 1 second
-end
-
-local function setUpdateRate(value)
-    updatesPerSecond = math.clamp(value, 1, 120) -- Clamp to atleast 1 heartbeat
 end
 
 
@@ -196,7 +164,7 @@ local Toggle = Tab:CreateToggle({
 -- Slider wired to backend setter (clamped)
 local Slider = Tab:CreateSlider({
     Name = "Lesser Factor",
-    Range = {1, 30},
+    Range = {1, 20},
     Increment = 1,
     Suffix = "x",
     CurrentValue = 20,
@@ -216,18 +184,5 @@ local IntervalSlider = Tab:CreateSlider({
     Flag = "ConnectionIntervalSlider",
     Callback = function(Value)
         setConnectionInterval(Value)
-    end,
-})
-
--- Slider for HZ
-local RateSlider = Tab:CreateSlider({
-    Name = "Heartbeats/s",
-    Range = {30, 120}, -- min and max Hz values
-    Increment = 5,
-    Suffix = "Hz",
-    CurrentValue = updatesPerSecond,
-    Flag = "AutofarmRateSlider",
-    Callback = function(Value)
-        setUpdateRate(Value) -- Call helper
     end,
 })
