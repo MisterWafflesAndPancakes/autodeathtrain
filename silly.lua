@@ -139,6 +139,39 @@ local function setConnectionInterval(value)
     connectionInterval = math.max(1, value) -- clamp to at least 1 second
 end
 
+-- Backend controls for Anti-AFK
+local antiAFKEnabled = false
+local antiAFKConnection
+
+local function enableAntiAFK()
+    if antiAFKEnabled then return end
+    antiAFKEnabled = true
+
+    local Players = game:GetService("Players")
+    local VirtualUser = game:GetService("VirtualUser")
+    local player = Players.LocalPlayer
+
+    -- Connect once
+    antiAFKConnection = player.Idled:Connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+end
+
+local function disableAntiAFK()
+    if not antiAFKEnabled then return end
+    antiAFKEnabled = false
+
+    if antiAFKConnection then
+        antiAFKConnection:Disconnect()
+        antiAFKConnection = nil
+    end
+end
+
+local function isAntiAFKEnabled()
+    return antiAFKEnabled
+end
+
 
 -- Rayfield UI setup
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
@@ -187,16 +220,17 @@ local IntervalSlider = Tab:CreateSlider({
     end,
 })
 
--- Anti-AFK Button in Rayfield
-MainTab:CreateButton({
+local AFKToggle = Tab:CreateToggle({
     Name = "Enable Anti-AFK",
-    Callback = function()
-        local VirtualUser = game:GetService("VirtualUser")
-        local player = game:GetService("Players").LocalPlayer
-
-        player.Idled:Connect(function()
-            VirtualUser:CaptureController()
-            VirtualUser:ClickButton2(Vector2.new())
-        end)
+    CurrentValue = false,
+    Flag = "AntiAFKToggle",
+    Callback = function(Value)
+        if Value then
+            enableAntiAFK()
+            print("Anti-AFK enabled")
+        else
+            disableAntiAFK()
+            print("Anti-AFK disabled")
+        end
     end,
 })
