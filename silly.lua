@@ -27,7 +27,7 @@ local trainingAreas = {
     {threshold = 1e21, part = workspace.Main.TrainingAreasHitBoxes.BT["1Sx"]},
     {threshold = 1e24, part = workspace.Main.TrainingAreasHitBoxes.BT["1Sp"]},
     {threshold = 1e27, part = workspace.Main.TrainingAreasHitBoxes.BT["1Oc"]},
-    --{threshold = 1e30, part = workspace.Main.TrainingAreasHitBoxes.BT["1No"]},
+    {threshold = 1e30, part = workspace.Main.TrainingAreasHitBoxes.BT["1No"]},
 }
 table.sort(trainingAreas, function(a, b) return a.threshold < b.threshold end)
 
