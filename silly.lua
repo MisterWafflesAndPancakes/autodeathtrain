@@ -9,7 +9,7 @@ local lesserFactor = 20
 local connectionInterval = 7
 
 -- Reference PlayButton safely
-local playButton = player:WaitForChild("PlayerGui"):WaitForChild("IntroGui"):WaitForChild("PlayButton")
+local playButton = player:WaitForChild("PlayerGui"):WaitForChild("ChristmasIntroGui"):WaitForChild("PlayButton")
 local connections = getconnections(playButton.MouseButton1Click)
 
 -- Training areas mapped to correct thresholds (unique, ascending after sort)
